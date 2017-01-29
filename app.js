@@ -6,6 +6,8 @@ const path = require('path');
 const mongoose = require('mongoose');
 const sassMiddleware = require('node-sass-middleware');
 const expressValidator = require('express-validator');
+var multer = require('multer');
+
 const error = require('./constants').errorMessage;
 const writeLog = require('./commonfunction').writeLog;
 
@@ -40,6 +42,9 @@ app.use('/styles', sassMiddleware({
   indentedSyntax: true,
 }));
 
+var upload = multer();
+
+
 app.use(express.static(path.join(__dirname, './public')));
 
 // app.use(express.static(path.join(__dirname, './public')));
@@ -55,18 +60,24 @@ app.get('/', (req, res) => {
   res.render('newPatient');
 });
 
-app.post('/', (req, res) => {
+app.post('/patient/add', upload.array(), (req, res) => {
   let form = req.body;
-
+  console.log(form);
   for (let key in form) {
     req.checkBody(key, error.empty).notEmpty();
   }
   req.getValidationResult().then((result) => {
     if (!result.isEmpty()) {
-      form.errors = result.array();
-      res.status(400).render('newPatient', form);
-      return;
+      const response = {
+        status: 400,
+        type: 'error',
+        errors: result.array(),
+      };
+      return res.status(400).json(response);
     }
-    res.render('newPatient');
+    res.json({
+      status: 200,
+      type: 'success',
+    });
   });
 });
