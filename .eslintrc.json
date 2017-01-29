@@ -1,0 +1,13 @@
+{
+  "extends": "standard",
+  "rules": {
+    "semi": [
+      1,
+      "always"
+    ],
+    "comma-dangle": [
+      1,
+      "always-multiline"
+    ]
+  }
+}

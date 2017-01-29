@@ -1,0 +1,17 @@
+$other: "(min-width: 600px)"
+$phone: "(max-width: 600px)"
+h1
+  text-align: center
+  padding-bottom: 1em
+.form-container
+  background: rgba(255, 255, 255, 0.8)
+  margin: 3em auto
+  padding: 3em
+  width: 80%
+  border-radius: 2em
+label
+  @media #{$other}
+    text-align: right
+  @media #{$phone}
+    text-align: left
+    

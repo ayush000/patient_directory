@@ -1,0 +1,65 @@
+extends base.pug
+block header
+  link(rel="stylesheet" href="styles/newPatient.css" type="text/css")
+block content
+  div(class="form-container")
+    h1 Add a new patient
+    form
+      div(class="form-group row")
+        label(class="col-sm-3 col-form-label") First Name
+        div(class="col-sm-9")
+          input(
+            type="text"
+            class="form-control"
+            placeholder="Enter your first name"
+          )
+
+      div(class="form-group row")
+        label(class="col-sm-3 col-form-label") Last Name
+        div(class="col-sm-9")
+          input(
+            type="text"
+            class="form-control"
+            placeholder="Enter your last name"
+          )
+
+      div(class="form-group row")
+        label(class="col-sm-3 col-form-label") Age
+        div(class="col-sm-9")
+          input(
+            type="number"
+            class="form-control"
+            placeholder="Enter your age"
+          )
+
+      div(class="form-group row")  
+        label(class="col-sm-3 col-form-label") Date of birth
+        div(class="col-sm-9")
+          input(
+            type="date"
+            class="form-control"
+          )
+
+      div(class="form-group row")  
+        label(class="col-sm-3 col-form-label") Gender
+        div(class="col-sm-9")
+          select(class="form-control")
+            option Male
+            option Female
+
+      div(class="form-group row")
+        label(class="col-sm-3 col-form-label") Phone
+        div(class="col-sm-9")
+          input(
+            type="tel"
+            class="form-control"
+            placeholder="Enter your phone number"
+          )
+
+      div(class="form-group row")
+        label(class="col-sm-3 col-form-label") Details
+        div(class="col-sm-9")
+          textarea(placeholder="Enter details here" rows="6" class="form-control")
+      div(class="form-group row")
+        div(class="col-sm-9 offset-sm-3")
+          button(type="submit" class="btn btn-primary") Submit
