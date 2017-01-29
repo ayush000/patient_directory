@@ -4,15 +4,18 @@ block header
 block content
   div(class="form-container")
     h1 Add a new patient
-    form
-      div(class="form-group row")
+    form(action="/" method="POST")
+      div(class="form-group row has-danger")
         label(class="col-sm-3 col-form-label") First Name
         div(class="col-sm-9")
           input(
             type="text"
             class="form-control"
             placeholder="Enter your first name"
+            name="fname"
+            value=fname
           )
+          div(class="form-control-feedback") Sorry, that username's taken. Try another?
 
       div(class="form-group row")
         label(class="col-sm-3 col-form-label") Last Name
@@ -21,6 +24,8 @@ block content
             type="text"
             class="form-control"
             placeholder="Enter your last name"
+            name="lname"
+            value=lname
           )
 
       div(class="form-group row")
@@ -30,6 +35,8 @@ block content
             type="number"
             class="form-control"
             placeholder="Enter your age"
+            name="age"
+            value=age
           )
 
       div(class="form-group row")  
@@ -38,12 +45,14 @@ block content
           input(
             type="date"
             class="form-control"
+            name="date"
+            value=date
           )
 
       div(class="form-group row")  
         label(class="col-sm-3 col-form-label") Gender
         div(class="col-sm-9")
-          select(class="form-control")
+          select(class="form-control" name="gender" value=gender)
             option Male
             option Female
 
@@ -54,12 +63,36 @@ block content
             type="tel"
             class="form-control"
             placeholder="Enter your phone number"
+            name="phone"
+            value=phone
           )
 
       div(class="form-group row")
         label(class="col-sm-3 col-form-label") Details
         div(class="col-sm-9")
-          textarea(placeholder="Enter details here" rows="6" class="form-control")
-      div(class="form-group row")
-        div(class="col-sm-9 offset-sm-3")
-          button(type="submit" class="btn btn-primary") Submit
+          textarea(placeholder="Enter details here"
+          rows="6"
+          class="form-control"
+          name="details"
+          value=details
+        )
+      button(type="submit" class="offset-sm-3 col-sm-4 btn btn-primary") Submit
+      button(type="button" class="offset-sm-1 col-sm-4 btn btn-primary") Patient directory
+  script.
+    console.log(document.querySelector('[name="fname"]').value);
+    if ('!{errors}') {
+      const errors = JSON.parse('!{JSON.stringify(errors)}');
+      for (let i = 0; i < errors.length; i++) {
+        let {param, msg} = errors[i];
+        console.log(`param: ${param}`);
+        console.log(`msg: ${msg}`);
+        let inputContainer = document.querySelector(`[name="${param}"]`).parentNode;
+        let elemContainer = inputContainer.parentNode;
+
+        elemContainer.className += ' has-danger'
+        let errorDiv = document.createElement('div');
+        errorDiv.className = 'form-control-feedback';
+        errorDiv.innerHTML = msg;
+        inputContainer.appendChild(errorDiv);
+      }
+    }

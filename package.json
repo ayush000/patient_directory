@@ -24,6 +24,6 @@
   },
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon --debug=32836 --nolazy --harmony app.js"
   }
 }

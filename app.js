@@ -5,6 +5,8 @@ const compression = require('compression');
 const path = require('path');
 const mongoose = require('mongoose');
 const sassMiddleware = require('node-sass-middleware');
+const expressValidator = require('express-validator');
+const error = require('./constants').errorMessage;
 const writeLog = require('./commonfunction').writeLog;
 
 mongoose.Promise = global.Promise;
@@ -20,9 +22,10 @@ const app = express();
 app.use(compression());
 
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 // parse application/json
 app.use(bodyParser.json());
+app.use(expressValidator());
 
 if (process.env.NODE_ENV !== 'test') {
   app.use(logger('dev'));
@@ -50,4 +53,20 @@ const listener = app.listen(process.env.PORT || 8081, () => {
 // Routes
 app.get('/', (req, res) => {
   res.render('newPatient');
+});
+
+app.post('/', (req, res) => {
+  let form = req.body;
+
+  for (let key in form) {
+    req.checkBody(key, error.empty).notEmpty();
+  }
+  req.getValidationResult().then((result) => {
+    if (!result.isEmpty()) {
+      form.errors = result.array();
+      res.status(400).render('newPatient', form);
+      return;
+    }
+    res.render('newPatient');
+  });
 });
