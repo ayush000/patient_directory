@@ -8,6 +8,10 @@
     "comma-dangle": [
       1,
       "always-multiline"
+    ],
+    "space-before-function-paren": [
+      0,
+      "never"
     ]
   }
 }

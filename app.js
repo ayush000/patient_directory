@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const sassMiddleware = require('node-sass-middleware');
 const expressValidator = require('express-validator');
 var multer = require('multer');
+const _ = require('lodash');
 
 const error = require('./constants').errorMessage;
 const writeLog = require('./commonfunction').writeLog;
@@ -27,7 +28,13 @@ app.use(compression());
 app.use(bodyParser.urlencoded({ extended: true }));
 // parse application/json
 app.use(bodyParser.json());
-app.use(expressValidator());
+app.use(expressValidator({
+  customValidators: {
+    isPhone: (value) => {
+      return /^\+?\d{4,20}$/g.test(value);
+    },
+  },
+}));
 
 if (process.env.NODE_ENV !== 'test') {
   app.use(logger('dev'));
@@ -62,16 +69,20 @@ app.get('/', (req, res) => {
 
 app.post('/patient/add', upload.array(), (req, res) => {
   let form = req.body;
-  console.log(form);
-  for (let key in form) {
-    req.checkBody(key, error.empty).notEmpty();
-  }
+  validateAll(req, form);
+
   req.getValidationResult().then((result) => {
     if (!result.isEmpty()) {
+      const errors = result.array();
+      const uniErrors = _.uniqBy(errors, 'param');
+      writeLog('Errors');
+      writeLog(errors);
+      writeLog('unique');
+      writeLog(uniErrors);
       const response = {
         status: 400,
         type: 'error',
-        errors: result.array(),
+        errors: uniErrors,
       };
       return res.status(400).json(response);
     }
@@ -81,3 +92,19 @@ app.post('/patient/add', upload.array(), (req, res) => {
     });
   });
 });
+
+function validateAll(req, form) {
+  for (let key in form) {
+    req.checkBody(key, error.empty).notEmpty();
+  }
+  req.checkBody('fname', error.name)
+    .isAlpha().isLength({ min: 2, max: 30 });
+  req.checkBody('lname', error.name)
+    .isAlpha().isLength({ min: 2, max: 30 });
+  req.checkBody('age', error.age)
+    .isInt({ min: 10, max: 100 });
+  req.checkBody('phone', error.phone)
+    .isPhone();
+  req.checkBody('date', error.date)
+    .isDate().isAfter('1900-01-01').isBefore();
+}

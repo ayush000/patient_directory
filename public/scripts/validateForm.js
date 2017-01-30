@@ -14,6 +14,8 @@ function parseJSON(response) {
 
 function handleClick() {
   let addPatientForm = document.getElementById('add-patient');
+  $('.has-danger').removeClass('has-danger');
+  $('.form-control-feedback').remove();
   fetch('/patient/add', {
     method: 'post',
     body: new FormData(addPatientForm),
