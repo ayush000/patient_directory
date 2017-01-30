@@ -4,6 +4,7 @@ const logger = require('morgan');
 const compression = require('compression');
 const path = require('path');
 const mongoose = require('mongoose');
+const Patient = require('./models/Patient');
 const sassMiddleware = require('node-sass-middleware');
 const expressValidator = require('express-validator');
 var multer = require('multer');
@@ -86,9 +87,17 @@ app.post('/patient/add', upload.array(), (req, res) => {
       };
       return res.status(400).json(response);
     }
-    res.json({
-      status: 200,
-      type: 'success',
+
+    // Store patient in db
+    const patient = new Patient(form);
+    patient.save().then(() => {
+      const response = {
+        status: 200,
+        type: 'success',
+      };
+      res.send(response);
+    }).catch(err => {
+      res.status(500).send(`Internal server error: ${err}`);
     });
   });
 });
