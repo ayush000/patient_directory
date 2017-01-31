@@ -14,8 +14,8 @@ function parseJSON(response) {
 
 function handleClick() {
   let addPatientForm = document.getElementById('add-patient');
-  $('.has-danger').removeClass('has-danger');
-  $('.form-control-feedback').remove();
+  $('.has-error').removeClass('has-error');
+  $('.help-block').remove();
   fetch('/patient/add', {
     method: 'post',
     body: new FormData(addPatientForm),
@@ -50,9 +50,9 @@ function addErrorMarkings(errors) {
     let inputContainer = document.querySelector(`[name="${param}"]`).parentNode;
     let elemContainer = inputContainer.parentNode;
 
-    elemContainer.className += ' has-danger';
+    elemContainer.className += ' has-error';
     let errorDiv = document.createElement('div');
-    errorDiv.className = 'form-control-feedback';
+    errorDiv.className = 'help-block';
     errorDiv.innerHTML = msg;
     inputContainer.appendChild(errorDiv);
   }

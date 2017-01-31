@@ -4,12 +4,13 @@ const logger = require('morgan');
 const compression = require('compression');
 const path = require('path');
 const mongoose = require('mongoose');
-const Patient = require('./models/Patient');
 const sassMiddleware = require('node-sass-middleware');
 const expressValidator = require('express-validator');
-var multer = require('multer');
+const multer = require('multer');
+const moment = require('moment');
 const _ = require('lodash');
 
+const Patient = require('./models/Patient');
 const error = require('./constants').errorMessage;
 const writeLog = require('./commonfunction').writeLog;
 
@@ -76,10 +77,6 @@ app.post('/patient/add', upload.array(), (req, res) => {
     if (!result.isEmpty()) {
       const errors = result.array();
       const uniErrors = _.uniqBy(errors, 'param');
-      writeLog('Errors');
-      writeLog(errors);
-      writeLog('unique');
-      writeLog(uniErrors);
       const response = {
         status: 400,
         type: 'error',
@@ -90,21 +87,57 @@ app.post('/patient/add', upload.array(), (req, res) => {
 
     // Store patient in db
     const patient = new Patient(form);
-    patient.save().then(() => {
-      const response = {
-        status: 200,
-        type: 'success',
-      };
-      res.send(response);
-    }).catch(err => {
-      res.status(500).send(`Internal server error: ${err}`);
-    });
+    patient.save()
+      .then(() => {
+        const response = {
+          status: 200,
+          type: 'success',
+        };
+        res.send(response);
+      })
+      .catch(err => {
+        res.status(500).send({
+          status: 500,
+          type: 'error',
+          error: `Internal server error: ${err}`,
+        });
+      });
   });
+});
+
+app.get('/abc', (req, res) => {
+  res.render('pd2');
+});
+
+app.get('/patient-directory', (req, res) => {
+  Patient.find({})
+    .then(patients => {
+      patients = patients.map(patient => {
+        const obj = patient.toObject();
+        return {
+          'First name': obj.fname,
+          'Last name': obj.lname,
+          'Age': obj.age,
+          'Date of birth': moment(obj.date).format('ll'),
+          'Details': obj.details || '',
+        };
+      });
+      res.render('patientDirectory', { patients });
+    })
+    .catch(err => {
+      res.status(500).send({
+        status: 500,
+        type: 'error',
+        error: `Internal server error: ${err}`,
+      });
+    });
 });
 
 function validateAll(req, form) {
   for (let key in form) {
-    req.checkBody(key, error.empty).notEmpty();
+    if (key !== 'details') {
+      req.checkBody(key, error.empty).notEmpty();
+    }
   }
   req.checkBody('fname', error.name)
     .isAlpha().isLength({ min: 2, max: 30 });

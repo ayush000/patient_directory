@@ -1,12 +1,13 @@
 extends base.pug
 block header
   link(rel="stylesheet" href="styles/newPatient.css" type="text/css")
+  title Add a patient
 block content
   div(class="form-container")
     h1 Add a new patient
     form(id="add-patient")
       div(class="form-group row")
-        label(class="col-sm-3 col-form-label") First Name
+        label(class="col-sm-3 text-right control-label") First Name
         div(class="col-sm-9")
           input(
             type="text"
@@ -17,7 +18,7 @@ block content
           )
 
       div(class="form-group row")
-        label(class="col-sm-3 col-form-label") Last Name
+        label(class="col-sm-3 text-right control-label") Last Name
         div(class="col-sm-9")
           input(
             type="text"
@@ -28,7 +29,7 @@ block content
           )
 
       div(class="form-group row")
-        label(class="col-sm-3 col-form-label") Age
+        label(class="col-sm-3 text-right control-label") Age
         div(class="col-sm-9")
           input(
             type="number"
@@ -39,7 +40,7 @@ block content
           )
 
       div(class="form-group row")  
-        label(class="col-sm-3 col-form-label") Date of birth
+        label(class="col-sm-3 text-right control-label") Date of birth
         div(class="col-sm-9")
           input(
             type="date"
@@ -49,14 +50,14 @@ block content
           )
 
       div(class="form-group row")  
-        label(class="col-sm-3 col-form-label") Gender
+        label(class="col-sm-3 text-right control-label") Gender
         div(class="col-sm-9")
           select(class="form-control" name="gender" value=gender)
             option Male
             option Female
 
       div(class="form-group row")
-        label(class="col-sm-3 col-form-label") Phone
+        label(class="col-sm-3 text-right control-label") Phone
         div(class="col-sm-9")
           input(
             type="tel"
@@ -67,7 +68,7 @@ block content
           )
 
       div(class="form-group row")
-        label(class="col-sm-3 col-form-label") Details
+        label(class="col-sm-3 text-right control-label") Details
         div(class="col-sm-9")
           textarea(placeholder="Enter details here"
           rows="6"
@@ -75,8 +76,12 @@ block content
           name="details"
           value=details
         )
-      button(type="button" class="offset-sm-3 col-sm-4 btn btn-primary" onclick="handleClick()") Submit
-      button(type="button" class="offset-sm-1 col-sm-4 btn btn-primary") Patient directory
+      button(type="button" class="col-sm-offset-3 col-sm-4 btn btn-primary" onclick="handleClick()") Submit
+      button(type="button"
+        class="col-sm-offset-1 col-sm-4 btn btn-primary"
+        onclick="location.href='/patient-directory'"
+      ) Patient directory
+block scripts
   script(src="/scripts/validateForm.js").
     handleClick();
 
