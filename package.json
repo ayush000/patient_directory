@@ -18,7 +18,8 @@
     "morgan": "^1.7.0",
     "multer": "^1.3.0",
     "node-sass-middleware": "^0.11.0",
-    "pug": "^2.0.0-beta9"
+    "pug": "^2.0.0-beta9",
+    "supertest": "^3.0.0"
   },
   "devDependencies": {
     "eslint-plugin-promise": "^3.4.0",
@@ -28,6 +29,6 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon --debug=32836 --nolazy --harmony app.js",
-    "test": "ava"
+    "test": "NODE_ENV=test MONGO_DB_URI=mongodb://localhost:27017/patient_directory_test ava"
   }
 }

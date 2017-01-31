@@ -25,83 +25,119 @@ mongoose.connect(MONGODB_URL, (err) => {
   writeLog('Connected to Mongo!');
 });
 
-const app = express();
-app.use(compression());
+/**
+ * Funtion to create express server and its routes. Required for endpoint testing
+ */
+function makeApp() {
+  const app = express();
+  app.use(compression());
 
-// Handle multipart forms
-const upload = multer();
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: true }));
-// parse application/json
-app.use(bodyParser.json());
-app.use(expressValidator({
-  customValidators: {
-    // Check whether a string is a valid phone number
-    isPhone: (value) => {
-      // 4-20 digits with an optional + sign returns true
-      return /^\+?\d{4,20}$/g.test(value);
+  // Handle multipart forms
+  const upload = multer();
+  // parse application/x-www-form-urlencoded
+  app.use(bodyParser.urlencoded({ extended: true }));
+  // parse application/json
+  app.use(bodyParser.json());
+  app.use(expressValidator({
+    customValidators: {
+      // Check whether a string is a valid phone number
+      isPhone: value => {
+        // 4-20 digits with an optional + sign returns true
+        return /^\+?\d{4,20}$/g.test(value);
+      },
+      isValidGender: value => {
+        return value === 'Male' || value === 'Female';
+      },
     },
-  },
-}));
+  }));
 
-if (process.env.NODE_ENV !== 'test') {
-  app.use(logger('dev'));
-}
+  // Converts sass files to css and puts them in ./public/styles
+  app.use('/styles', sassMiddleware({
+    src: path.join(__dirname, './sass'),
+    response: false,
+    dest: path.join(__dirname, './public/styles'),
+    debug: true,
+    outputStyle: 'extended',
+    indentedSyntax: true,
+  }));
 
-// Converts sass files to css and puts them in ./public/styles
-app.use('/styles', sassMiddleware({
-  src: path.join(__dirname, './sass'),
-  response: false,
-  dest: path.join(__dirname, './public/styles'),
-  debug: true,
-  outputStyle: 'extended',
-  indentedSyntax: true,
-}));
+  app.use(express.static(path.join(__dirname, './public')));
 
-app.use(express.static(path.join(__dirname, './public')));
+  app.set('view engine', 'pug');
+  app.set('views', path.join(__dirname, './views'));
+  if (process.env.NODE_ENV !== 'test') {
+    app.use(logger('dev'));
+    const listener = app.listen(process.env.PORT || 8081, () => {
+      writeLog(`Listening on port ${listener.address().port}`);
+    });
+  }
 
-app.set('view engine', 'pug');
-app.set('views', path.join(__dirname, './views'));
+  // Routes
 
-const listener = app.listen(process.env.PORT || 8081, () => {
-  writeLog(`Listening on port ${listener.address().port}`);
-});
+  // Renders add a patient page
+  app.get('/', (req, res) => {
+    res.render('newPatient');
+  });
 
-// Routes
+  // Receive form data, validate and store in database
+  app.post('/patient/add', upload.array(), (req, res) => {
+    let form = req.body;
+    validateAll(req);
 
-// Renders add a patient page
-app.get('/', (req, res) => {
-  res.render('newPatient');
-});
-
-// Receive form data, validate and store in database
-app.post('/patient/add', upload.array(), (req, res) => {
-  let form = req.body;
-  validateAll(req);
-
-  // Function added by express-validator. Result object contains validation error for each field.
-  req.getValidationResult().then(result => {
-    if (!result.isEmpty()) {
-      const errors = result.array();
-      // Select unique errors by field. If a field has 2 validation errors, only one error is displayed
-      const uniErrors = _.uniqBy(errors, 'param');
-      const response = {
-        status: 400,
-        type: responseType.ERROR,
-        errors: uniErrors,
-      };
-      return res.status(400).json(response);
-    }
-
-    // Store patient in db
-    const patient = new Patient(form);
-    patient.save()
-      .then(() => {
+    // Function added by express-validator. Result object contains validation error for each field.
+    req.getValidationResult().then(result => {
+      if (!result.isEmpty()) {
+        const errors = result.array();
+        // Select unique errors by field. If a field has 2 validation errors, only one error is displayed
+        const uniErrors = _.uniqBy(errors, 'param');
         const response = {
-          status: 200,
-          type: responseType.SUCCESS,
+          status: 400,
+          type: responseType.ERROR,
+          errors: uniErrors,
         };
-        res.send(response);
+        return res.status(400).json(response);
+      }
+
+      // Store patient in db
+      const patient = new Patient(form);
+      patient.save()
+        .then(() => {
+          const response = {
+            status: 200,
+            type: responseType.SUCCESS,
+          };
+          res.send(response);
+        })
+        .catch(err => {
+          res.status(500).send({
+            status: 500,
+            type: responseType.ERROR,
+            error: `Internal server error: ${err}`,
+          });
+        });
+    });
+  });
+
+  // Render patient-directory.
+  app.get('/patient-directory', (req, res) => {
+    // Select all patients
+    Patient.find({})
+      .then(patients => {
+        // Convert to JSON array and map keys to field names
+        patients = patients.map(patient => {
+          // Convert each document to JSON object
+          const obj = patient.toObject();
+          return {
+            'First name': obj.fname,
+            'Last name': obj.lname,
+            'Age': obj.age,
+            'Date of birth': moment(obj.date).format('ll'),
+            'Gender': obj.gender,
+            'Phone': obj.phone,
+            'Details': obj.details || '',
+          };
+        });
+        res.render('patientDirectory', { patients });
       })
       .catch(err => {
         res.status(500).send({
@@ -111,37 +147,10 @@ app.post('/patient/add', upload.array(), (req, res) => {
         });
       });
   });
-});
+  return app;
+}
 
-// Render patient-directory.
-app.get('/patient-directory', (req, res) => {
-  // Select all patients
-  Patient.find({})
-    .then(patients => {
-      // Convert to JSON array and map keys to field names
-      patients = patients.map(patient => {
-        // Convert each document to JSON object
-        const obj = patient.toObject();
-        return {
-          'First name': obj.fname,
-          'Last name': obj.lname,
-          'Age': obj.age,
-          'Date of birth': moment(obj.date).format('ll'),
-          'Gender': obj.gender,
-          'Phone': obj.phone,
-          'Details': obj.details || '',
-        };
-      });
-      res.render('patientDirectory', { patients });
-    })
-    .catch(err => {
-      res.status(500).send({
-        status: 500,
-        type: responseType.ERROR,
-        error: `Internal server error: ${err}`,
-      });
-    });
-});
+makeApp();
 
 /**
  * Validate fields of a patient. Result of validation is returned as a promise to req.getValidationResult
@@ -168,7 +177,11 @@ function validateAll(req) {
   // Phone number should contain 6-20 digits only, may include + sign for country code
   req.checkBody('phone', error.phone)
     .isPhone();
+  req.checkBody('gender', error.gender)
+    .isValidGender();
   // Date of birth should be between 1st january 1900 and current date
   req.checkBody('date', error.date)
     .isDate().isAfter('1900-01-01').isBefore();
 }
+
+exports.makeApp = makeApp;

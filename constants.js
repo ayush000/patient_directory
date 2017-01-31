@@ -5,6 +5,7 @@ exports.errorMessage = {
   age: 'Invalid field. Should be an interger between 10 and 100',
   phone: 'Invalid phone number. Should contain 6-20 digits without spaces. May include country code',
   date: 'Invalid date',
+  gender: 'Gender should by Male or Female',
 };
 
 // Type of responses for APIs
