@@ -56,7 +56,6 @@ function makeApp() {
     src: path.join(__dirname, './sass'),
     response: false,
     dest: path.join(__dirname, './public/styles'),
-    debug: true,
     outputStyle: 'extended',
     indentedSyntax: true,
   }));
