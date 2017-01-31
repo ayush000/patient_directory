@@ -6,3 +6,5 @@ Screen 1: A patient entry screen with fields like firstname, lastname, age, dob,
 Screen 2: A patient directory which shows a list of patients, with local search functionality based on patient name.
 
 The app has been built using `javascript`, `bootstrap`, `jQuery`. Backend has been written in `Express.js` and `Node.js`. `Pug` is used for HTML templates and `SASS` for CSS. Tests are written using `avajs` and `supertest` frameworks.
+
+## [Live demo here](http://patient-dir.herokuapp.com/)
