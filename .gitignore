@@ -1,5 +1,4 @@
-
-# Created by https://www.gitignore.io/api/vsc,visualstudiocode,node
+public/styles
 
 ### VisualStudioCode ###
 .vscode/*
@@ -8,7 +7,6 @@
 !.vscode/launch.json
 !.vscode/extensions.json
 
-public/styles
 ### Node ###
 # Logs
 logs
@@ -60,4 +58,3 @@ jspm_packages
 lib/
 dist/js/main.bundle.js
 dist/js/main.bundle.js.map
-Ï

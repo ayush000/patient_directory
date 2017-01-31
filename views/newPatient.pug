@@ -76,11 +76,13 @@ block content
           name="details"
           value=details
         )
+
       button(type="button" class="col-sm-offset-3 col-sm-4 btn btn-primary" onclick="handleClick()") Submit
       button(type="button"
         class="col-sm-offset-1 col-sm-4 btn btn-primary"
         onclick="location.href='/patient-directory'"
       ) Patient directory
+
 block scripts
   script(src="/scripts/validateForm.js").
     handleClick();

@@ -9,6 +9,8 @@ const schema = new mongoose.Schema({
     set: v => Math.round(v),
   },
   date: { type: Date, required: true, trim: true },
+  gender: { type: String, required: true, enum: ['Male', 'Female'], default: 'Male' },
+  phone: { type: String, required: true, trim: true },
   details: { type: String, trim: true },
 });
 
